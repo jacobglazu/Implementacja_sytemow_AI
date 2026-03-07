@@ -40,7 +40,7 @@ python.exe -m pip install -r requirements.txt
 
 ## DVC Workflow
 
-1. Tworzymy plik w katalogu data (nowy!), dvc remote add -d zdalny [link], comit
+1. Tworzymy plik w katalogu data (nowy!), dvc remote add -d zdalny [link],  git add .\example.csv.dvc .gitignore, comit
 2. Dodajemy do dvc: `dvc add nazwa_pliku`
 3. dvc push, git add -f .\example.csv, git commit
 4. Zmiana zawartości pliku (tego nowego)
