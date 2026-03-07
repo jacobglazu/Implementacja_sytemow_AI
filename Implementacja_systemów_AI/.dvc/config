@@ -1,0 +1,4 @@
+[core]
+    remote = zdalny
+['remote "zdalny"']
+    url = D:\Kuba\Implementacja_2\Implementacja_sytemow_AI\zadadnie_03\przyklad_03\data
