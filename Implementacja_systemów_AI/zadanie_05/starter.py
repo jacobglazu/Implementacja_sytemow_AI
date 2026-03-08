@@ -4,6 +4,8 @@ Zadanie 05 — Optuna + MLflow: optymalizacja hiperparametrów.
 Uzupełnij miejsca oznaczone TODO.
 """
 
+from xml.parsers.expat import model
+
 import mlflow
 import mlflow.sklearn
 import optuna
@@ -46,13 +48,28 @@ def main():
         # n_estimators = trial.suggest_int("n_estimators", 50, 300, step=50)
         # max_depth = trial.suggest_int("max_depth", 3, 15)
         # min_samples_split = trial.suggest_int("min_samples_split", 2, 10)
-
+        n_estimators = trial.suggest_int("n_estimators", 50, 300, step=50)
+        max_depth = trial.suggest_int("max_depth", 3, 15)
+        min_samples_split = trial.suggest_int("min_samples_split", 2, 10)
         # TODO 2: Stwórz RandomForestClassifier z parametrami z trial
         # model = RandomForestClassifier(...)
+        # Stworzenie instancji RandomForestClassifier z parametrami
+        model = RandomForestClassifier(
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            min_samples_split=min_samples_split,
+            random_state=42  # Ustalanie random_state dla reprodukowalności wyników
+        )
 
         # TODO 3: Ewaluuj z cross_val_score (cv=5, scoring="accuracy")
         # scores = cross_val_score(model, X_train, y_train, cv=5, scoring="accuracy")
         # return scores.mean()
+        # Ewaluacja modelu za pomocą cross-validation
+        scores = cross_val_score(model, X_train, y_train, cv=5, scoring="accuracy")
+
+        # Zwrócenie średniej dokładności
+        mean_accuracy = scores.mean()
+        return mean_accuracy
 
         pass
 
@@ -64,10 +81,20 @@ def main():
     #     tracking_uri=mlflow.get_tracking_uri(),
     #     metric_name="cv_accuracy",
     # )
+    # Tworzenie MLflowCallback
+    mlflow_callback = MLflowCallback(
+        tracking_uri=mlflow.get_tracking_uri(),  # Ustalanie URI śledzenia
+        metric_name="cv_accuracy"                 # Nazwa metryki, którą chcesz śledzić
+    )
 
     # TODO 5: Stwórz study i uruchom optymalizację (15 prób)
     # study = optuna.create_study(direction="maximize")
     # study.optimize(objective, n_trials=15, callbacks=[mlflow_callback])
+    # Tworzenie study
+    study = optuna.create_study(direction="maximize")
+
+    # Uruchomienie optymalizacji
+    study.optimize(objective, n_trials=15, callbacks=[mlflow_callback])
 
     # TODO 6: Wytrenuj najlepszy model i zaloguj do MLflow
     # best_model = RandomForestClassifier(**study.best_params, random_state=42)
@@ -78,6 +105,26 @@ def main():
     #     mlflow.log_metric("test_accuracy", accuracy_score(y_test, best_model.predict(X_test)))
     #     signature = infer_signature(X_train, best_model.predict(X_train))
     #     mlflow.sklearn.log_model(best_model, "model", signature=signature)
+    # Tworzenie modelu z najlepszymi hiperparametrami
+    best_model = RandomForestClassifier(**study.best_params, random_state=42)
+
+    # Trenowanie modelu na danych treningowych
+    best_model.fit(X_train, y_train)
+
+    # Rozpoczęcie sesji MLflow
+    with mlflow.start_run(run_name="best-model"):
+    # Logowanie hiperparametrów
+        mlflow.log_params(study.best_params)
+    
+    # Logowanie metryk
+    mlflow.log_metric("cv_accuracy", study.best_value)
+    mlflow.log_metric("test_accuracy", accuracy_score(y_test, best_model.predict(X_test)))
+    
+    # Inference signature
+    signature = infer_signature(X_train, best_model.predict(X_train))
+    
+    # Logowanie modelu
+    mlflow.sklearn.log_model(best_model, "model", signature=signature)
 
     pass
 
