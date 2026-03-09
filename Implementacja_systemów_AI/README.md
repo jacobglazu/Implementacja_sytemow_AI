@@ -37,6 +37,23 @@ python.exe -m pip install -r requirements.txt
 | `dvc checkout` | Przywraca dane z zdalnego repozytorium |
 | `dvc du . ` | Pokazuje rozmiar danych w projekcie |
 | `dvc gc --workspace` | Usuwa niepotrzebne dane z cache |
+| `dvc repro` | Uruchamia ponownie pipeline |
+| `dvc dag` | Pokazuje graf zależności |
+| `dvc metrics show` | Pokazuje metryki |
+| `dvc metrics diff` | Porównuje metryki |
+| `dvc exp run --set-param n_estimators=200` | Uruchamia eksperyment z modyfikacją parametrów |
+| `dvc exp show` | Pokazuje eksperymenty |
+
+## BentoML
+
+| Komenda | Opis |
+|---------|------|
+| `bentoml models list` | Pokazuje modele |
+| `bentoml serve service:NazwaSerwisu` | Uruchamia serwis |
+| `bentoml build` | Buduje serwis |
+| `bentoml containerize` | Buduje kontener |
+
+
 
 ## DVC Workflow
 
@@ -50,3 +67,5 @@ python.exe -m pip install -r requirements.txt
 8. git checkout [nazwa brancha]
 9. Usuwamy pliki śledzone przez dvc z katalogu data oraz .dvc/cache
 10. dvc pull
+
+https://mikulskibartosz.github.io/sggw_implementacja_ai/#/3/10
